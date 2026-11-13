@@ -30,7 +30,8 @@ const signin = async (req, res) => {
       user: {
         _id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role // checking user status
       }
     });
   } catch (err) {
@@ -65,5 +66,21 @@ const hasAuthorization = (req, res, next) => {
   }
   next();
 };
+// 5. Check if the logged-in user is an Admin
+const hasAdminRole = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.auth._id);
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({
+        error: "Access denied. Admin role required."
+      });
+    }
+    next();
+  } catch (err) {
+    return res.status(400).json({
+      error: "Could not verify user role."
+    });
+  }
+};
 
-export default { signin, signout, requireSignin, hasAuthorization };
+export default { signin, signout, requireSignin, hasAuthorization, hasAdminRole };

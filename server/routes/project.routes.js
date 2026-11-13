@@ -1,21 +1,22 @@
 import express from 'express';
 import projectCtrl from '../controllers/project.controller.js';
+import authCtrl from '../controllers/auth.controller.js'; 
 
 const router = express.Router();
 
-// Routes for all projects (/api/projects)
+ 
 router.route('/api/projects')
-  .get(projectCtrl.list)
-  .post(projectCtrl.create)
-  .delete(projectCtrl.removeAll);
+  .get(projectCtrl.list) 
+  .post(authCtrl.requireSignin, authCtrl.hasAdminRole, projectCtrl.create) 
+  .delete(authCtrl.requireSignin, authCtrl.hasAdminRole, projectCtrl.removeAll);
 
-// Parameter helper: whenever :projectId is in the URL, automatically find that project
+
 router.param('projectId', projectCtrl.projectByID);
 
-// Routes for a single project (/api/projects/:projectId)
+ 
 router.route('/api/projects/:projectId')
-  .get(projectCtrl.read)
-  .put(projectCtrl.update)
-  .delete(projectCtrl.remove);
+  .get(projectCtrl.read) 
+  .put(authCtrl.requireSignin, authCtrl.hasAdminRole, projectCtrl.update) 
+  .delete(authCtrl.requireSignin, authCtrl.hasAdminRole, projectCtrl.remove); 
 
 export default router;
